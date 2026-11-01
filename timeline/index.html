@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Capital Plan Milestones</title>
+<meta name="description" content="The 2026–2035 Capital Plan as a milestone timeline: what the Port Authority finished in the last plan, what is underway, and what opens when.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #f2f0eb; --ink: #0e0e0e; --grey: #7d7c78; --grey-light: #cfcdc6; --rule: #dcdad4;
+    --blue: #0038a8; --yellow: #f2e52e; --cyan: #1aa3dd;
+    --c-air: #f2a900; --c-land: #6e2c91; --c-rail: #0b7bc1; --c-sea: #d5262b; --c-wtc: #17a89b; --c-agency: #0038a8;
+    --gutter: clamp(16px, 5vw, 72px);
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--paper); scroll-behavior: smooth; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font-family: "Inter Tight", "Helvetica Neue", Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; line-height: 1.4; }
+  .mono { font-family: "Share Tech Mono", ui-monospace, Consolas, monospace; letter-spacing: .04em; }
+  h1, h2, h3 { margin: 0; letter-spacing: -0.04em; line-height: .95; text-wrap: balance; }
+  h1 { font-size: clamp(40px, 7.5vw, 104px); font-weight: 800; }
+  h2 { font-size: clamp(22px, 3vw, 34px); font-weight: 800; letter-spacing: -0.03em; }
+  p { margin: 0; }
+  .small { font-size: 12px; color: var(--grey); }
+  .blue { color: var(--blue); }
+
+  header { padding: 18px var(--gutter) 0; display: flex; justify-content: space-between; gap: 16px; align-items: center; }
+  .mark { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .02em; }
+  .mark i { width: 14px; height: 14px; background: var(--blue); }
+  header a { color: var(--grey); text-decoration: none; font-size: 12px; border-bottom: 1px solid var(--grey-light); }
+  header a:hover { color: var(--blue); border-color: var(--blue); }
+
+  .intro { padding: 44px var(--gutter) 28px; display: grid; gap: 18px; max-width: 1100px; }
+  .intro p { max-width: 60ch; font-size: clamp(16px, 1.6vw, 19px); color: #333; }
+
+  /* Stat strip, as on the LGA page ("$8 Billion · Investment") */
+  .stats { margin: 0 var(--gutter) 40px; display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); border-top: 2px solid var(--ink); }
+  .stat { padding: 14px 16px 16px 0; border-right: 1px solid var(--rule); }
+  .stat:last-child { border-right: 0; }
+  .stat b { display: block; font-size: clamp(28px, 3.6vw, 44px); font-weight: 800; letter-spacing: -0.04em; line-height: 1; font-variant-numeric: tabular-nums; }
+  .stat span { display: block; margin-top: 6px; font-size: 11px; font-weight: 700; color: var(--grey); text-transform: uppercase; letter-spacing: .08em; }
+  .stat small { display: block; margin-top: 6px; font-size: 13px; color: #333; }
+
+  /* ---------- Framed section in the deck's language ---------- */
+  .frame { margin: 0 var(--gutter) 40px; padding: 26px 26px 30px; border: 2px solid var(--yellow); position: relative; }
+  .chip { display: inline-flex; position: absolute; top: -2px; left: -2px; font-size: 12px; font-weight: 700; }
+  .chip span { padding: 7px 12px; }
+  .chip span:first-child { background: var(--cyan); color: #fff; }
+  .chip span:last-child { background: var(--paper); color: var(--blue); border: 2px solid var(--yellow); border-left: 0; }
+  .cube { position: absolute; top: 14px; right: 18px; width: 54px; height: 54px; }
+  .cube path { fill: none; stroke: var(--yellow); stroke-width: 2; stroke-linejoin: round; }
+  .frame > h2 { margin-top: 22px; }
+
+  /* Filters */
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 22px; }
+  .filters button { font: 700 12px "Inter Tight", sans-serif; letter-spacing: .02em; padding: 7px 12px; border: 2px solid var(--rule); background: #fff; color: #333; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
+  .filters button i { width: 10px; height: 10px; background: var(--k, var(--ink)); }
+  .filters button[aria-pressed="true"] { border-color: var(--ink); background: var(--ink); color: var(--paper); }
+  .filters button:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
+
+  /* ---------- Timeline ---------- */
+  .tl { position: relative; }
+  .tl__nav { position: absolute; top: 28px; z-index: 3; width: 34px; height: 34px; border: 0; background: var(--yellow); color: var(--ink); cursor: pointer; display: grid; place-items: center; font-size: 18px; font-weight: 800; box-shadow: 0 1px 3px rgba(0,0,0,.2); }
+  .tl__nav:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
+  .tl__nav--prev { left: -8px; } .tl__nav--next { right: -8px; }
+  .tl__scroll { overflow-x: auto; overflow-y: hidden; scroll-snap-type: x proximity; padding: 8px 40px 10px; scrollbar-width: thin; }
+  .tl__track { position: relative; display: flex; min-width: max-content; padding-top: 56px; }
+  .tl__track::before { content: ""; position: absolute; left: 0; right: 0; top: 34px; height: 3px; background: var(--ink); }
+  .tl__era { position: absolute; top: 0; height: 22px; font-size: 10px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--grey); display: flex; align-items: center; padding-left: 8px; border-left: 2px solid var(--grey-light); }
+  .node { position: relative; width: 150px; flex: none; scroll-snap-align: center; padding: 0 6px; display: grid; justify-items: center; gap: 8px; cursor: pointer; border: 0; background: none; font: inherit; color: inherit; text-align: center; }
+  .node::before { content: ""; position: absolute; top: -29px; width: 18px; height: 18px; border-radius: 50%; background: var(--paper); border: 4px solid var(--k); transition: transform .15s; }
+  .node[aria-selected="true"]::before { background: var(--k); transform: scale(1.25); }
+  .node--done::before { border-style: solid; }
+  .node--planned::before { background: var(--paper); border-color: var(--k); }
+  .node__year { font-weight: 800; font-size: 20px; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+  .node__year small { display: block; font-size: 10px; font-weight: 700; letter-spacing: .08em; color: var(--grey); text-transform: uppercase; }
+  .node__title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; line-height: 1.25; color: #333; max-width: 140px; }
+  .node[aria-selected="true"] .node__title { color: var(--k); }
+  .node:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
+  .node.is-hidden { display: none; }
+
+  /* Detail card */
+  .detail { margin-top: 18px; border-top: 2px solid var(--ink); padding-top: 16px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 14px 32px; align-items: start; }
+  .detail__k { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--grey); }
+  .detail__k i { width: 12px; height: 12px; background: var(--k); }
+  .detail h3 { font-size: clamp(22px, 3vw, 32px); font-weight: 800; letter-spacing: -0.03em; margin-top: 8px; }
+  .detail p { margin-top: 10px; font-size: 16px; color: #333; max-width: 64ch; }
+  .status { justify-self: end; font: 400 13px "Share Tech Mono", monospace; letter-spacing: .06em; padding: 8px 12px; border: 2px solid var(--k); color: var(--k); white-space: nowrap; }
+  .status--done { background: var(--k); color: #fff; }
+  .detail__src { grid-column: 1 / -1; font-size: 12px; color: var(--grey); }
+  .detail__src a { color: inherit; }
+  @media (max-width: 720px) { .detail { grid-template-columns: 1fr; } .status { justify-self: start; } .cube { display: none; } .frame { padding: 22px 14px 24px; } }
+
+  /* Legend */
+  .legend { display: flex; flex-wrap: wrap; gap: 10px 18px; margin-top: 18px; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; color: var(--grey); }
+  .legend i { width: 14px; height: 14px; border-radius: 50%; border: 3px solid var(--ink); background: var(--paper); }
+  .legend i.done { background: var(--ink); }
+
+  footer { padding: 40px var(--gutter) 64px; border-top: 2px solid var(--ink); display: grid; gap: 10px; }
+  footer p { max-width: 64ch; color: #333; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<script>
+  // Start every page at its top, even when it loads inside a frame whose parent is scrolled (claude.ai, mobile included).
+  (function () {
+    try { history.scrollRestoration = "manual"; } catch (e) {}
+    var toTop = function () {
+      window.scrollTo(0, 0);
+      var el = document.documentElement;
+      if (el && el.scrollIntoView) el.scrollIntoView({ block: "start", inline: "nearest", behavior: "instant" });
+    };
+    toTop();
+    document.addEventListener("DOMContentLoaded", toTop);
+    window.addEventListener("load", function () { toTop(); requestAnimationFrame(toTop); setTimeout(toTop, 250); });
+    window.addEventListener("pageshow", function (e) { if (e.persisted) toTop(); });
+  })();
+</script>
+<header>
+  <span class="mark"><i></i> Port of Entry · Capital plan</span>
+  <a href="../concepts/index.html">Concept board</a>
+</header>
+
+<section class="intro">
+  <h1>A decade of<br><span class="blue">big ambition</span>, as a timeline.</h1>
+  <p>The Port Authority's project pages for LaGuardia and the Midtown Bus Terminal each end on a milestone timeline. This is the same device for the whole $45 billion 2026–2035 Capital Plan: what the last plan finished, what is under construction now, and what opens in which year. Filled nodes are done; open nodes are ahead.</p>
+</section>
+
+<section class="stats" aria-label="The plan in numbers">
+  <div class="stat"><b>$45B</b><span>Investment</span><small>$42B direct plus $2.7B in support of Gateway. Funding gap: zero.</small></div>
+  <div class="stat"><b>2035</b><span>Completion</span><small>Three airports remade, the bus terminal open, PATH running every line every day.</small></div>
+  <div class="stat"><b>50,000+</b><span>Jobs</span><small>Including 33,000 or more union construction jobs.</small></div>
+  <div class="stat"><b>0</b><span>Tax dollars</span><small>Self-supporting: tolls, fees, fares and rent. Two-thirds of revenue is non-toll, non-fare.</small></div>
+</section>
+
+<section class="frame" aria-labelledby="tl-title">
+  <div class="chip"><span>2026–2035 Capital Plan</span><span>Milestones</span></div>
+  <svg class="cube" viewBox="0 0 54 54" aria-hidden="true"><path d="M27 4l12 7v14l-12 7-12-7V11z M15 11l12 7 12-7 M27 18v14"/><path d="M27 28l12 7v14l-12 7-12-7V35z M15 35l12 7 12-7 M27 42v12"/></svg>
+  <h2 id="tl-title">Transformation milestones</h2>
+
+  <div class="filters" role="group" aria-label="Filter by mode">
+    <button aria-pressed="true" data-f="all">All</button>
+    <button aria-pressed="false" data-f="air" style="--k:var(--c-air)"><i></i>Air</button>
+    <button aria-pressed="false" data-f="land" style="--k:var(--c-land)"><i></i>Land</button>
+    <button aria-pressed="false" data-f="rail" style="--k:var(--c-rail)"><i></i>Rail</button>
+    <button aria-pressed="false" data-f="sea" style="--k:var(--c-sea)"><i></i>Sea</button>
+    <button aria-pressed="false" data-f="wtc" style="--k:var(--c-wtc)"><i></i>WTC</button>
+    <button aria-pressed="false" data-f="agency" style="--k:var(--c-agency)"><i></i>Agency</button>
+  </div>
+
+  <div class="tl">
+    <button class="tl__nav tl__nav--prev" id="prev" aria-label="Previous milestone">&lsaquo;</button>
+    <button class="tl__nav tl__nav--next" id="next" aria-label="Next milestone">&rsaquo;</button>
+    <div class="tl__scroll" id="scroll">
+      <div class="tl__track" id="track" role="tablist" aria-label="Milestones"></div>
+    </div>
+  </div>
+
+  <div class="detail" id="detail" role="tabpanel" aria-live="polite"></div>
+
+  <div class="legend">
+    <span><i class="done"></i>Completed</span><span><i></i>Planned or underway</span>
+    <span>Colours: <b style="color:var(--c-air)">Air</b>, <b style="color:var(--c-land)">Land</b>, <b style="color:var(--c-rail)">Rail</b>, <b style="color:var(--c-sea)">Sea</b>, <b style="color:var(--c-wtc)">WTC</b></span>
+  </div>
+</section>
+
+<footer>
+  <h2>Where this goes</h2>
+  <p>On the site, this timeline sits at the foot of every mode page, filtered to that mode, the way the LaGuardia page ends on its own milestones. The landing page stays the front door; the timeline is the last thing a reader sees before choosing the next window.</p>
+  <p class="small">Dates and figures from the November 2025 board presentation, the 2026–2035 Capital Plan document, and the LaGuardia and Midtown Bus Terminal project pages on portauthoritybuilds.com. Where the deck and a project page differ (the bus terminal's first phase is "2029 est." on its page and 2030 in the deck), both are shown. "Est." marks the agency's own estimates.</p>
+</footer>
+
+<script>
+(function () {
+  const COL = { air: "var(--c-air)", land: "var(--c-land)", rail: "var(--c-rail)", sea: "var(--c-sea)", wtc: "var(--c-wtc)", agency: "var(--c-agency)" };
+  const NAME = { air: "Air", land: "Land", rail: "Rail", sea: "Sea", wtc: "World Trade Center", agency: "Agency" };
+  // [year, sub, mode, status, title, description, era]
+  const M = [
+    ["2017", "", "agency", "done", "2017–2026 plan adopted", "A $37 billion plan, later described by the agency as an unprecedented wave of renewal across airports, bus terminal, seaport, PATH and the World Trade Center.", "last"],
+    ["2018", "", "land", "done", "New Goethals Bridge", "Opened as the first major new bridge construction since 1931, built to serve for the next hundred years.", "last"],
+    ["2019", "", "sea", "done", "Bayonne Bridge raised", "The $1.7 billion raising of the roadway to 215 feet of clearance, a world first, let the largest container ships reach the port. Paired with deepening the harbor to 50 feet.", "last"],
+    ["2022", "", "rail", "done", "PATH signal system", "A $1 billion state-of-the-art signal system installed, letting trains run closer together safely. The fleet grew 20% and nine-car trains began on Newark–WTC, adding 12% capacity.", "last"],
+    ["2023", "jan", "air", "done", "Newark Terminal A opens", "The $2.7 billion terminal earned a five-star Skytrax rating and was named among the best new terminals in the world. The EWR Vision Plan followed, to bring the whole airport to that standard.", "last"],
+    ["2024", "", "air", "done", "LaGuardia complete", "The $8 billion rebuild finished: Terminal B (world's best new terminal) and Delta's Terminal C. Two-thirds of the cost came from private partners.", "last"],
+    ["2025", "", "land", "done", "Bus terminal breaks ground", "Construction begins on the Dyer Avenue deck-overs, the first stage of the $11 billion Midtown Bus Terminal, after approvals, financing and a unanimous City Council vote in 2024.", "last"],
+    ["2025", "nov", "agency", "done", "2026–2035 plan proposed", "The Board is asked to post a $45 billion plan for public comment: “finish what was started” and advance the renewal agenda. 50,000+ jobs.", "new"],
+    ["2026", "early", "rail", "ahead", "PATH Forward complete", "The $430 million program to repair aging stations, tracks and switches finishes, the foundation for the service increases that follow.", "new"],
+    ["2026", "", "rail", "ahead", "Every line, every day", "For the first time in 25 years all four PATH lines run seven days a week. Direct weekend service from Journal Square and Hoboken to 33rd Street and from Hoboken to WTC; Friday late-night service doubled by mid-year.", "new"],
+    ["2026", "", "air", "ahead", "NEC station link opens", "The long-overdue community access point at the Newark Airport rail station on the Northeast Corridor opens.", "new"],
+    ["2026", "", "air", "ahead", "First new JFK gates", "The first gates open at the $9.5 billion New Terminal One and the $4.2 billion Terminal 6.", "new"],
+    ["2026", "spring", "rail", "ahead", "Fare and fee changes begin", "PATH fares rise $0.25, with further $0.25 steps each January through 2029. Fares cover about a quarter of the cost of a ride; the agency pays the rest. Airport taxi and for-hire fees align with peer airports.", "new"],
+    ["2027", "", "rail", "ahead", "More Newark–WTC trains", "Additional trains in the weekday peak and on weekend daytimes in the first half of the year.", "new"],
+    ["2027", "", "land", "ahead", "Off-peak discount phases out", "The $2 E-ZPass off-peak discount for cars and motorcycles starts a four-year phase-out, 50 cents a year, to fund state-of-good-repair work at the crossings. Staten Island and truck discounts are unchanged.", "new"],
+    ["2029", "est.", "land", "ahead", "Bus terminal first phase", "The project page gives 2029 (est.) for the first phase; the deck gives 2030. Either way: the ramps straight into the Lincoln Tunnel and a storage and staging building for up to 350 buses, which also serves as the temporary terminal.", "new"],
+    ["2030", "", "air", "ahead", "Newark AirTrain opens", "The $3.5 billion replacement for the 1996 monorail enters service.", "new"],
+    ["2030", "", "land", "ahead", "Restore the George", "The $2 billion-plus rehabilitation of the George Washington Bridge continues through the decade, over 60% done at the start of the plan, to extend the bridge's life for another century. Helix and Outerbridge rehabilitation run alongside.", "new"],
+    ["2031", "onward", "sea", "ahead", "Harbor to 55 feet", "Deepening from 50 to 55 feet with the Army Corps of Engineers, plus $1.2 billion of private terminal investment and 60-plus rebuilt wharves. The Port Street Corridor opens first.", "new"],
+    ["2035", "", "land", "ahead", "Bus terminal opens", "The 2.1 million square foot main terminal and the 3.5-acre park on the deck-overs. Buses off local streets; built for an all-electric fleet.", "new"],
+    ["2035", "", "air", "ahead", "Newark fully transformed", "New Terminal B, an expanded Terminal A, an updated Terminal C, a third taxiway and a simplified roadway network: the EWR Vision Plan delivered. Across the three airports, a $50 billion-plus remaking is complete.", "new"],
+    ["2035", "goal", "wtc", "ahead", "Towers 2 and 5", "The stated goal: build out the World Trade Center campus, with One WTC kept Class A at 95% leased.", "new"],
+    ["2036", "next plan", "land", "ahead", "Helix and Outerbridge replaced", "Replacement of the Lincoln Tunnel Helix and the Outerbridge Crossing is planned for the 2036–2045 capital plan.", "next"],
+  ];
+
+  const track = document.getElementById("track"), detail = document.getElementById("detail"), scroll = document.getElementById("scroll");
+  let filter = "all", selected = 7;
+
+  // Era labels sit above the line.
+  const eras = [["last", "2017–2025 · finished"], ["new", "2026–2035 · the plan"], ["next", "2036–"]];
+
+  function render() {
+    track.innerHTML = "";
+    const visible = M.map((m, i) => i).filter((i) => filter === "all" || M[i][2] === filter);
+    let lastEra = null;
+    visible.forEach((i) => {
+      const m = M[i];
+      if (m[6] !== lastEra) {
+        const e = document.createElement("span"); e.className = "tl__era"; e.textContent = eras.find((x) => x[0] === m[6])[1];
+        e.style.left = (track.children.length ? track.children.length : 0) + "px"; // placeholder, fixed below
+        track.appendChild(e); lastEra = m[6];
+      }
+      const b = document.createElement("button");
+      b.className = "node node--" + (m[3] === "done" ? "done" : "planned"); b.setAttribute("role", "tab"); b.dataset.i = i; b.style.setProperty("--k", COL[m[2]]);
+      b.setAttribute("aria-selected", String(i === selected));
+      b.innerHTML = `<span class="node__year">${m[0]}<small>${m[1] || "&nbsp;"}</small></span><span class="node__title">${m[4]}</span>`;
+      b.addEventListener("click", () => select(i, true));
+      track.appendChild(b);
+    });
+    // Position era labels over the first node of each era.
+    let x = 0;
+    [...track.children].forEach((el) => { if (el.classList.contains("tl__era")) { el.style.left = x + "px"; } else { x += el.offsetWidth; } });
+    if (!visible.includes(selected)) selected = visible[0];
+    show(selected);
+  }
+  function show(i) {
+    const m = M[i];
+    detail.style.setProperty("--k", COL[m[2]]);
+    detail.innerHTML = `<div><span class="detail__k"><i></i>${NAME[m[2]]} · ${m[0]}${m[1] ? " " + m[1] : ""}</span><h3>${m[4]}</h3><p>${m[5]}</p></div>
+      <span class="status ${m[3] === "done" ? "status--done" : ""}">${m[3] === "done" ? "COMPLETED" : (m[6] === "next" ? "NEXT PLAN" : "IN THE PLAN")}</span>`;
+  }
+  function select(i, scrollTo) {
+    selected = i;
+    track.querySelectorAll(".node").forEach((n) => n.setAttribute("aria-selected", String(+n.dataset.i === i)));
+    show(i);
+    if (scrollTo) centerNode(i, true);
+  }
+  function step(dir) {
+    const nodes = [...track.querySelectorAll(".node")].map((n) => +n.dataset.i);
+    const k = nodes.indexOf(selected); const j = Math.min(nodes.length - 1, Math.max(0, k + dir));
+    select(nodes[j], true);
+  }
+  document.getElementById("prev").addEventListener("click", () => step(-1));
+  document.getElementById("next").addEventListener("click", () => step(1));
+  document.addEventListener("keydown", (e) => { if (e.target.closest(".node")) { if (e.key === "ArrowRight") { e.preventDefault(); step(1); track.querySelector('.node[aria-selected="true"]').focus(); } if (e.key === "ArrowLeft") { e.preventDefault(); step(-1); track.querySelector('.node[aria-selected="true"]').focus(); } } });
+  document.querySelectorAll(".filters button").forEach((b) => b.addEventListener("click", () => {
+    filter = b.dataset.f; document.querySelectorAll(".filters button").forEach((x) => x.setAttribute("aria-pressed", String(x === b))); render();
+    centerNode(selected, false);
+  }));
+  function centerNode(i, smooth) {
+    const n = track.querySelector(`.node[data-i="${i}"]`); if (!n) return;
+    const left = n.offsetLeft - (scroll.clientWidth - n.offsetWidth) / 2;
+    if (smooth && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) scroll.scrollTo({ left, behavior: "smooth" });
+    else scroll.scrollLeft = left;
+  }
+  render();
+  centerNode(selected, false);
+})();
+</script>
+</body>
+</html>

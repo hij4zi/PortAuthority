@@ -1,0 +1,542 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Port of Entry Concepts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #f2f0eb; --ink: #0e0e0e; --grey: #7d7c78; --grey-light: #cfcdc6; --grid: rgba(14,14,14,.08);
+    --blue: #0038a8; --yellow: #f2e52e; --housing: #17140f; --led: #f0a21e;
+    --gutter: clamp(16px, 5vw, 72px);
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--paper); }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font-family: "Inter Tight", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased; line-height: 1.4;
+    background-image: repeating-linear-gradient(90deg, var(--grid) 0 1px, transparent 1px calc(100% / 6));
+    background-position: var(--gutter) 0;
+  }
+  .mono { font-family: "Share Tech Mono", ui-monospace, Consolas, monospace; letter-spacing: .04em; }
+  .small { font-size: 12px; color: var(--grey); }
+  .small b { color: var(--ink); font-weight: 700; }
+  h1, h2, h3 { margin: 0; letter-spacing: -0.04em; line-height: .95; text-wrap: balance; }
+  h1 { font-size: clamp(44px, 9vw, 120px); font-weight: 800; }
+  h2 { font-size: clamp(34px, 5.5vw, 72px); font-weight: 800; }
+  h3 { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; }
+  p { margin: 0; }
+  .blue { color: var(--blue); }
+
+  header { padding: 18px var(--gutter) 0; display: flex; justify-content: space-between; gap: 16px; }
+  .mark { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .02em; }
+  .mark i { width: 14px; height: 14px; background: var(--blue); }
+
+  .intro { padding: 56px var(--gutter) 40px; display: grid; gap: 22px; max-width: 1100px; }
+  .intro p { max-width: 58ch; font-size: clamp(16px, 1.6vw, 20px); color: #333; }
+
+  /* ---------- Shared spine: one day, four places ---------- */
+  .spine { margin: 0 var(--gutter) 64px; border-top: 2px solid var(--ink); padding-top: 18px; display: grid; gap: 14px; }
+  .spine__head { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; flex-wrap: wrap; }
+  .spine__now { font-size: clamp(28px, 4vw, 48px); font-weight: 800; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+  .spine__now small { font-size: 14px; font-weight: 500; color: var(--grey); letter-spacing: 0; margin-left: 10px; }
+  .spine__track { position: relative; height: 46px; }
+  .spine__shift { position: absolute; top: 14px; height: 18px; display: flex; align-items: center; padding: 0 8px; font-size: 11px; font-weight: 700; color: #fff; background: var(--blue); white-space: nowrap; transition: opacity .2s; }
+  .spine__shift.is-off { opacity: .35; }
+  .spine__shift.is-on { background: var(--ink); }
+  .spine input { width: 100%; margin: 0; accent-color: var(--blue); }
+  .spine__hours { display: flex; justify-content: space-between; font-size: 11px; color: var(--grey); }
+
+  /* ---------- Concept sections ---------- */
+  .concept { padding: 56px var(--gutter); border-top: 1px solid var(--grey-light); display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 32px 56px; align-items: start; }
+  .concept__text { display: grid; gap: 16px; position: sticky; top: 24px; }
+  .concept__eyebrow { display: flex; align-items: center; gap: 10px; }
+  .concept__eyebrow .bullet { width: 26px; height: 26px; border-radius: 50%; background: var(--blue); color: #fff; display: grid; place-items: center; font-weight: 800; font-size: 13px; }
+  .concept__text p { color: #333; font-size: 16px; max-width: 48ch; }
+  .concept__text .how { padding: 12px 14px; border-left: 3px solid var(--yellow); font-size: 14px; }
+  .concept__demo { display: grid; gap: 12px; min-width: 0; }
+  .demo-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--grey); text-transform: uppercase; letter-spacing: .08em; font-weight: 700; }
+  .demo-label span:last-child { color: var(--blue); }
+  @media (max-width: 860px) { .concept { grid-template-columns: 1fr; } .concept__text { position: static; } }
+
+  /* ---------- Air: split-flap board ---------- */
+  .board { background: var(--housing); padding: 16px; border-radius: 4px; display: grid; gap: 8px; color: var(--led); overflow-x: auto; }
+  .board__row { display: grid; grid-template-columns: 56px 1fr 72px 120px; gap: 14px; align-items: center; cursor: pointer; padding: 4px 6px; border-radius: 2px; }
+  .board__row:hover, .board__row.is-active { background: rgba(240,162,30,.12); }
+  .board__head { font-size: 10px; color: rgba(240,162,30,.55); text-transform: uppercase; letter-spacing: .14em; border-bottom: 1px solid rgba(240,162,30,.25); padding-bottom: 6px; margin-bottom: 4px; cursor: default; }
+  .board__head:hover { background: none; }
+  .flap { display: inline-flex; gap: 2px; }
+  .flap i { display: inline-grid; place-items: center; width: 14px; height: 22px; background: #2a2419; color: #ffe2a8; font-style: normal; font-size: 14px; border-radius: 2px; position: relative; overflow: hidden; }
+  .flap i::after { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: rgba(0,0,0,.6); }
+  .board__status { font-size: 12px; }
+  .board__status.go { color: #8ee07a; }
+
+  /* ---------- Land: six crossings ---------- */
+  .crossings { display: grid; gap: 10px; }
+  .crossings svg { width: 100%; height: auto; display: block; }
+  .crossings .x { cursor: pointer; }
+  .crossings .x path, .crossings .x rect { fill: none; stroke: var(--ink); stroke-width: 2; transition: stroke .2s; }
+  .crossings .x text { font-family: "Inter Tight", sans-serif; font-size: 11px; font-weight: 700; fill: var(--grey); letter-spacing: .02em; }
+  .crossings .x:hover path, .crossings .x:hover rect, .crossings .x.is-on path, .crossings .x.is-on rect { stroke: var(--blue); stroke-width: 3; }
+  .crossings .x:hover text, .crossings .x.is-on text { fill: var(--blue); }
+  .fact { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; border-top: 2px solid var(--ink); padding-top: 12px; }
+  .fact div { display: grid; gap: 2px; }
+  .fact b { font-size: clamp(20px, 3vw, 30px); font-weight: 800; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+  .fact span { font-size: 11px; color: var(--grey); text-transform: uppercase; letter-spacing: .08em; font-weight: 700; }
+  .fact__name { grid-column: 1 / -1; font-weight: 800; font-size: 22px; letter-spacing: -0.03em; }
+
+  /* ---------- Rail: the dot that freezes ---------- */
+  .railmap { display: grid; grid-template-columns: minmax(0, 1fr) 200px; gap: 16px; align-items: stretch; }
+  .railmap svg { width: 100%; height: auto; display: block; background: #e8e6df; border-radius: 4px; }
+  .railmap .river { fill: #c9d7ea; }
+  .railmap .line { fill: none; stroke: var(--ink); stroke-width: 4; }
+  .railmap .stop { fill: var(--paper); stroke: var(--ink); stroke-width: 3; }
+  .railmap .dot { fill: #1a73e8; stroke: #fff; stroke-width: 3; }
+  .railmap .halo { fill: rgba(26,115,232,.18); }
+  .railmap text { font-family: "Inter Tight", sans-serif; font-size: 11px; font-weight: 700; fill: var(--ink); }
+  .railmap .sig { font-family: "Share Tech Mono", monospace; font-size: 12px; fill: #b3261e; font-weight: 400; }
+  .phone { background: var(--housing); border-radius: 6px; padding: 12px; color: var(--led); display: grid; align-content: space-between; gap: 10px; }
+  .phone .t { font-size: 28px; font-weight: 400; }
+  .phone .s { font-size: 12px; color: #ffe2a8; }
+  .phone .s.bad { color: #ff6b57; }
+  .railmap input { grid-column: 1 / -1; width: 100%; accent-color: var(--blue); }
+
+  /* ---------- Sea: follow one box ---------- */
+  .trace { display: grid; gap: 14px; }
+  .trace__scan { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .trace__scan input { font: 16px "Share Tech Mono", monospace; letter-spacing: .08em; padding: 10px 12px; border: 2px solid var(--ink); background: #fff; width: 190px; text-transform: uppercase; }
+  .trace__scan button { font: 700 14px "Inter Tight", sans-serif; padding: 11px 16px; background: var(--ink); color: var(--paper); border: 0; cursor: pointer; }
+  .trace__scan button:hover { background: var(--blue); }
+  .trace__scan button:focus-visible, .trace__scan input:focus-visible, .board__row:focus-visible, .crossings .x:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+  .steps { display: grid; }
+  .step { display: grid; grid-template-columns: 64px 24px 1fr; gap: 0 12px; align-items: start; min-height: 58px; position: relative; opacity: .25; transition: opacity .4s; }
+  .step.is-on { opacity: 1; }
+  .step::before { content: ""; position: absolute; left: calc(64px + 12px + 11px); top: 0; bottom: 0; width: 2px; background: var(--grey-light); }
+  .step:first-child::before { top: 50%; } .step:last-child::before { bottom: 50%; }
+  .step .t { font-family: "Share Tech Mono", monospace; font-size: 14px; color: var(--grey); padding-top: 2px; }
+  .step .d { width: 24px; height: 24px; border-radius: 50%; background: var(--paper); border: 3px solid var(--ink); position: relative; z-index: 1; }
+  .step.is-on .d { background: var(--blue); border-color: var(--blue); }
+  .step .n { font-weight: 800; font-size: 17px; letter-spacing: -0.02em; }
+  .step .n small { display: block; font-weight: 500; color: var(--grey); font-size: 13px; letter-spacing: 0; margin-top: 2px; }
+  .trace__bar { height: 6px; background: var(--grey-light); position: relative; }
+  .trace__bar i { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: var(--yellow); transition: width .5s; }
+
+  .plan-note { padding: 12px 14px; border-left: 3px solid var(--blue); font-size: 14px; color: #333; }
+  .plan-note b { color: var(--blue); }
+  .alloc { display: flex; gap: 3px; height: 34px; }
+  .alloc span { display: flex; align-items: center; padding: 0 8px; font-size: 11px; font-weight: 700; color: #fff; background: var(--blue); white-space: nowrap; overflow: hidden; min-width: 0; }
+  .alloc span[data-k="wtc"] { background: var(--grey); }
+  .alloc span[data-k="rail"], .alloc span[data-k="sea"] { background: #2a56c4; }
+  .opens { list-style: none; margin: 4px 0 0; padding: 0; display: grid; gap: 6px; }
+  .opens li { display: grid; grid-template-columns: 56px 1fr; gap: 12px; font-size: 14px; color: #333; opacity: .3; transition: opacity .3s; }
+  .opens li.is-on { opacity: 1; }
+  .opens li b { font-family: "Share Tech Mono", monospace; font-weight: 400; color: var(--blue); letter-spacing: .04em; }
+  /* ---------- Agency visual language (from the Nov 2025 board deck) ---------- */
+  :root { --c-air: #f2a900; --c-land: #6e2c91; --c-rail: #0b7bc1; --c-sea: #d5262b; --c-wtc: #17a89b; --cyan: #1aa3dd; }
+  .concept { margin: 0 var(--gutter) 28px; padding: 22px 26px 34px; border: 2px solid var(--yellow); border-top: 0; position: relative; }
+  .concept::before { content: ""; position: absolute; left: -2px; right: -2px; top: 0; height: 2px; background: var(--yellow); }
+  .chip { display: inline-flex; align-items: stretch; font-size: 12px; font-weight: 700; letter-spacing: 0; position: absolute; top: -2px; left: -2px; }
+  .chip span { padding: 7px 12px; }
+  .chip span:first-child { background: var(--cyan); color: #fff; }
+  .chip span:last-child { background: var(--paper); color: var(--mode); border: 2px solid var(--yellow); border-left: 0; }
+  .concept__text { padding-top: 26px; }
+  .cube { position: absolute; top: 14px; right: 18px; width: 54px; height: 54px; }
+  .cube path { fill: none; stroke: var(--yellow); stroke-width: 2; stroke-linejoin: round; }
+  .concept__eyebrow .bullet { background: var(--mode); }
+  .concept__text .how { border-left-color: var(--mode); }
+  .plan-note { border-left-color: var(--mode); }
+  .plan-note b { color: var(--mode); }
+  #air { --mode: var(--c-air); } #land { --mode: var(--c-land); } #rail { --mode: var(--c-rail); } #sea { --mode: var(--c-sea); }
+  #air .concept__eyebrow .bullet { color: #111; }
+
+  /* Allocation cards, as on the deck's closing slide: grey card, coloured corner swoosh. */
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+  .card { position: relative; overflow: hidden; background: #e4e3df; border-radius: 10px; padding: 14px 14px 22px; min-height: 118px; }
+  .card b { display: block; font-size: 20px; font-weight: 800; letter-spacing: -0.03em; line-height: 1; }
+  .card small { display: block; margin-top: 2px; font-size: 11px; font-weight: 700; color: var(--grey); text-transform: uppercase; letter-spacing: .06em; }
+  .card p { margin: 8px 0 0; font-size: 12px; line-height: 1.35; color: #333; }
+  .card::after { content: ""; position: absolute; right: -22px; bottom: -22px; width: 64px; height: 64px; border-radius: 50%; background: var(--mode); }
+  .card[data-k="air"] { --mode: var(--c-air); } .card[data-k="land"] { --mode: var(--c-land); } .card[data-k="rail"] { --mode: var(--c-rail); } .card[data-k="sea"] { --mode: var(--c-sea); } .card[data-k="wtc"] { --mode: var(--c-wtc); }
+
+  /* Network map */
+  .netmap { margin: 0 var(--gutter) 56px; display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+  .netmap svg { width: 100%; height: auto; display: block; background: #d7e2f0; border-radius: 6px; }
+  .netmap .land { fill: #e9e7e1; stroke: #cfd6de; stroke-width: 1; }
+  .netmap .f { cursor: pointer; }
+  .netmap .f rect { stroke: #fff; stroke-width: 1.5; transition: transform .15s; transform-box: fill-box; transform-origin: center; }
+  .netmap .f:hover rect, .netmap .f.is-on rect { transform: scale(1.5); }
+  .netmap .f text { font-family: "Inter Tight", sans-serif; font-size: 9px; font-weight: 700; fill: #333; pointer-events: none; }
+  .netmap .water-label { font-family: "Inter Tight", sans-serif; font-size: 10px; font-weight: 700; fill: #6f87a8; letter-spacing: .1em; }
+  .netpanel { border-top: 2px solid var(--ink); padding-top: 12px; display: grid; gap: 8px; min-height: 180px; }
+  .netpanel .k { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--grey); }
+  .netpanel .k i { width: 12px; height: 12px; background: var(--mode); }
+  .netpanel h3 { font-size: 24px; }
+  .netpanel p { font-size: 15px; color: #333; }
+  .netpanel .legend { display: flex; flex-wrap: wrap; gap: 10px 16px; margin-top: 8px; }
+  .netpanel .legend span { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; color: var(--grey); }
+  .netpanel .legend i { width: 10px; height: 10px; }
+  @media (max-width: 860px) { .netmap { grid-template-columns: 1fr; } .concept { margin: 0 var(--gutter) 24px; padding: 20px 16px 28px; } .cube { display: none; } }
+  footer { padding: 48px var(--gutter) 64px; border-top: 2px solid var(--ink); display: grid; gap: 10px; }
+  footer p { max-width: 60ch; color: #333; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<script>
+  // Start every page at its top, even when it loads inside a frame whose parent is scrolled (claude.ai, mobile included).
+  (function () {
+    try { history.scrollRestoration = "manual"; } catch (e) {}
+    var toTop = function () {
+      window.scrollTo(0, 0);
+      var el = document.documentElement;
+      if (el && el.scrollIntoView) el.scrollIntoView({ block: "start", inline: "nearest", behavior: "instant" });
+    };
+    toTop();
+    document.addEventListener("DOMContentLoaded", toTop);
+    window.addEventListener("load", function () { toTop(); requestAnimationFrame(toTop); setTimeout(toTop, 250); });
+    window.addEventListener("pageshow", function (e) { if (e.persisted) toTop(); });
+  })();
+</script>
+<header>
+  <span class="mark"><i></i> Port of Entry · Concept board</span>
+  <span class="small">( working prototypes, not final design )</span>
+</header>
+
+<section class="intro">
+  <h1>Four pages,<br>one <span class="blue">decade</span>.</h1>
+  <p>A proposal for the content of each mode page, in the order the agency itself uses: "by air, land, rail and sea". Each page shows a facility as it works today, then what the <b>$45 billion 2026 to 2035 Capital Plan</b> is building there and when it opens. One signature interaction per page, one short written piece, and two shared spines: the hour of the day, and the year in the plan.</p>
+</section>
+
+<section class="spine" aria-label="One day, four places">
+  <div class="spine__head">
+    <div class="spine__now"><span id="clock">05:40</span><small id="where">Newark Liberty · the first flight out</small></div>
+    <span class="small">First spine: the timestamp overlay already on the Rail page.</span>
+  </div>
+  <div class="spine__track" id="shifts"></div>
+  <input type="range" id="hour" min="0" max="1439" value="340" step="5" aria-label="Hour of the day">
+  <div class="spine__hours"><span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>24:00</span></div>
+</section>
+
+<!-- PLAN SPINE -->
+<section class="spine plan" aria-label="The 2026 to 2035 Capital Plan">
+  <div class="spine__head">
+    <div class="spine__now"><span id="year">2026</span><small id="yearnote"></small></div>
+    <span class="small">Second spine: every page ends on what the $45B plan builds there. Drag the year, or see the full <a href="../timeline/index.html" style="color:var(--blue)">milestone timeline</a>.</span>
+  </div>
+  <div class="cards" role="list" aria-label="How the $42 billion is split">
+    <div class="card" data-k="air" role="listitem"><b>$20.7B</b><small>Aviation · 49%</small><p>Finish JFK; new Terminal B and AirTrain at Newark; new LGA Terminal A.</p></div>
+    <div class="card" data-k="land" role="listitem"><b>$15.4B</b><small>Tunnels, bridges &amp; terminals · 37%</small><p>$11B Midtown Bus Terminal; $2B Restore the George; Helix and Outerbridge.</p></div>
+    <div class="card" data-k="rail" role="listitem"><b>$2.6B</b><small>PATH · 6%</small><p>All four lines every day; more rush-hour and weekend trains; new fare gates.</p></div>
+    <div class="card" data-k="sea" role="listitem"><b>$2B</b><small>Seaport · 5%</small><p>Harbor to 55 ft; 60+ wharves restored; Port Street Corridor.</p></div>
+    <div class="card" data-k="wtc" role="listitem"><b>$1.2B</b><small>World Trade Center · 3%</small><p>Build out Towers 2 and 5; keep One WTC Class A.</p></div>
+  </div>
+  <input type="range" id="yr" min="2026" max="2035" value="2026" step="1" aria-label="Year of the capital plan">
+  <div class="spine__hours"><span>2026</span><span>2028</span><span>2030</span><span>2032</span><span>2035</span></div>
+  <ul class="opens" id="opens"></ul>
+</section>
+
+<!-- NETWORK MAP -->
+<section class="netmap" aria-label="The network">
+  <svg viewBox="0 0 760 520" role="img" aria-label="Schematic map of Port Authority facilities, coloured by mode">
+    <!-- schematic land masses: New Jersey, Manhattan, Brooklyn and Queens, Staten Island -->
+    <path class="land" d="M0 0 H395 L385 140 L370 300 L320 400 L260 460 L220 520 H0 Z"/>
+    <path class="land" d="M430 20 L470 10 L478 120 L470 260 L455 380 L440 420 L425 400 L418 300 L420 150 Z"/>
+    <path class="land" d="M500 40 H760 V520 H470 L480 420 L500 330 L520 250 L505 150 Z"/>
+    <path class="land" d="M250 470 L330 420 L400 450 L395 520 H240 Z"/>
+    <path class="land" d="M285 60 L380 50 L390 110 L300 120 Z"/>
+    <text class="water-label" x="402" y="90" transform="rotate(80 402 90)">HUDSON RIVER</text>
+    <text class="water-label" x="300" y="330" transform="rotate(-70 300 330)">NEWARK BAY</text>
+    <text class="water-label" x="640" y="500">LOWER BAY</text>
+    <g id="facilities"></g>
+  </svg>
+  <div class="netpanel">
+    <span class="k"><i id="np-swatch"></i><span id="np-mode">The network</span></span>
+    <h3 id="np-name">25 facilities, one landlord</h3>
+    <p id="np-text">Drawn from the map on the deck's second slide. Hover or tap a square to see what the 2026–2035 plan does there. Positions are schematic.</p>
+    <div class="legend">
+      <span><i style="background:var(--c-air)"></i>Air</span><span><i style="background:var(--c-land)"></i>Land</span><span><i style="background:var(--c-rail)"></i>Rail</span><span><i style="background:var(--c-sea)"></i>Sea</span><span><i style="background:var(--c-wtc)"></i>WTC</span>
+    </div>
+  </div>
+</section>
+
+<!-- AIR -->
+<section class="concept" id="air">
+  <div class="concept__text">
+    <div class="chip"><span>Proposed 2026–2035 Capital Plan</span><span>Air</span></div><svg class="cube" viewBox="0 0 54 54" aria-hidden="true"><path d="M27 4l12 7v14l-12 7-12-7V11z M15 11l12 7 12-7 M27 18v14"/><path d="M27 28l12 7v14l-12 7-12-7V35z M15 35l12 7 12-7 M27 42v12"/></svg>
+    <div class="concept__eyebrow"><span class="bullet">A</span><span class="small"><b>Air</b> · Newark Liberty · 05:40</span></div>
+    <h2>The departure board as table of contents</h2>
+    <p>The page opens on a split-flap board that clatters into place with one real morning's schedule. Each row is a scene: click it and the page jumps there. The board is the navigation, the way the clip windows are on the landing page.</p>
+    <p class="how">Written piece: <b>"The first flight out"</b>, on the people already at work when the first passenger arrives.</p>
+    <p class="plan-note"><b>In the plan ($20.7B, nearly half of it):</b> a new Terminal B, an expanded Terminal A, the $3.5B AirTrain opening 2030, the NEC station link opening 2026, a third taxiway. The last row of the board belongs to tomorrow: it flips to <i>TERMINAL B</i>.</p>
+  </div>
+  <div class="concept__demo">
+    <div class="demo-label"><span>Prototype</span><span>Click a row</span></div>
+    <div class="board mono" id="board"></div>
+    <p class="small" id="board-note">The flaps animate on load. Rows and times here are illustrative.</p>
+  </div>
+</section>
+
+<!-- LAND -->
+<section class="concept" id="land">
+  <div class="concept__text">
+    <div class="chip"><span>Proposed 2026–2035 Capital Plan</span><span>Land</span></div><svg class="cube" viewBox="0 0 54 54" aria-hidden="true"><path d="M27 4l12 7v14l-12 7-12-7V11z M15 11l12 7 12-7 M27 18v14"/><path d="M27 28l12 7v14l-12 7-12-7V35z M15 35l12 7 12-7 M27 42v12"/></svg>
+    <div class="concept__eyebrow"><span class="bullet">L</span><span class="small"><b>Land</b> · Bridges and tunnels · 12:00</span></div>
+    <h2>Six crossings, drawn to scale</h2>
+    <p>The Port Authority's first job was crossings. Here all six sit on one baseline at the same scale, bridges above it and tunnels below, so the reader sees that the George Washington Bridge is a different order of thing from the Outerbridge. Hover or tap for the facts.</p>
+    <p class="how">Written piece: <b>"Wrong way, on purpose"</b>, on the 2.5-mile contraflow bus lane that carries over 1,850 buses every weekday morning and saves each rider 15 to 20 minutes.</p>
+    <p class="plan-note"><b>In the plan ($15.4B, the largest share after airports):</b> the $11B Midtown Bus Terminal, phase 1 in 2030 and the main hall with a 3.5-acre park in 2035; the $2B "Restore the George"; rehabilitating the Helix. The Land page ends where the bus lane does, at the terminal being replaced.</p>
+  </div>
+  <div class="concept__demo">
+    <div class="demo-label"><span>Prototype</span><span>Hover or tap a crossing</span></div>
+    <div class="crossings">
+      <svg viewBox="0 0 760 230" role="img" aria-label="Six Hudson and Kill Van Kull crossings drawn to one scale">
+        <line x1="0" y1="140" x2="760" y2="140" stroke="#0e0e0e" stroke-width="1" stroke-dasharray="3 4"/>
+        <text x="4" y="134" font-size="10" fill="#7d7c78" font-family="Inter Tight" font-weight="700">WATERLINE</text>
+        <g class="x" tabindex="0" data-i="0"><path d="M20 140 V70 M20 70 Q120 150 220 70 M220 70 V140 M20 140 H220"/><text x="120" y="162" text-anchor="middle">George Washington</text></g>
+        <g class="x" tabindex="0" data-i="1"><path d="M250 140 V95 L300 78 L350 95 V140 H250"/><text x="300" y="162" text-anchor="middle">Bayonne</text></g>
+        <g class="x" tabindex="0" data-i="2"><path d="M380 140 V110 Q405 92 430 110 V140 H380"/><text x="405" y="162" text-anchor="middle">Goethals</text></g>
+        <g class="x" tabindex="0" data-i="3"><path d="M460 140 V112 Q485 96 510 112 V140 H460"/><text x="485" y="162" text-anchor="middle">Outerbridge</text></g>
+        <g class="x" tabindex="0" data-i="4"><rect x="540" y="150" width="100" height="18" rx="9"/><text x="590" y="190" text-anchor="middle">Lincoln</text></g>
+        <g class="x" tabindex="0" data-i="5"><rect x="655" y="150" width="96" height="18" rx="9"/><text x="703" y="190" text-anchor="middle">Holland</text></g>
+      </svg>
+      <div class="fact" id="fact"></div>
+      <p class="small">Lincoln Tunnel figures are from the Port Authority's own pages; the other crossings are approximate until checked against their Traffic &amp; Volume reports.</p>
+    </div>
+  </div>
+</section>
+
+<!-- RAIL -->
+<section class="concept" id="rail">
+  <div class="concept__text">
+    <div class="chip"><span>Proposed 2026–2035 Capital Plan</span><span>Rail</span></div><svg class="cube" viewBox="0 0 54 54" aria-hidden="true"><path d="M27 4l12 7v14l-12 7-12-7V11z M15 11l12 7 12-7 M27 18v14"/><path d="M27 28l12 7v14l-12 7-12-7V35z M15 35l12 7 12-7 M27 42v12"/></svg>
+    <div class="concept__eyebrow"><span class="bullet">R</span><span class="small"><b>Rail</b> · PATH · 07:41</span></div>
+    <h2>The dot that freezes</h2>
+    <p>Your footage already shows it: everyone checks the map under the river, and the blue dot stalls at Exchange Place until the train surfaces at the World Trade Center. On the page, a small map follows the reader's scroll. When the train enters the tunnel, the dot stops and the phone loses signal. It jumps the moment the train arrives.</p>
+    <p class="how">Written piece: <b>"Four minutes under the Hudson"</b>, on the one stretch of the commute with no signal. Newark to World Trade Center is 22 minutes at any hour.</p>
+    <p class="plan-note"><b>In the plan ($2.6B):</b> "every line, every day". All four lines seven days a week in 2026, direct weekend service, more rush-hour trains, new uptown tracks, new fare gates. The map on this page can light up the lines that run on weekends for the first time in 25 years.</p>
+  </div>
+  <div class="concept__demo">
+    <div class="demo-label"><span>Prototype</span><span>Drag to stand in for scrolling</span></div>
+    <div class="railmap">
+      <svg viewBox="0 0 420 180" role="img" aria-label="Schematic map of the PATH line from Grove Street to World Trade Center">
+        <rect class="river" x="236" y="0" width="92" height="180"/>
+        <text x="282" y="18" text-anchor="middle" fill="#4a6ea8">HUDSON</text>
+        <path class="line" d="M40 110 H380"/>
+        <circle class="stop" cx="40" cy="110" r="7"/><text x="40" y="140" text-anchor="middle">Grove St</text>
+        <circle class="stop" cx="200" cy="110" r="7"/><text x="200" y="140" text-anchor="middle">Exchange Pl</text>
+        <circle class="stop" cx="380" cy="110" r="7"/><text x="380" y="140" text-anchor="middle">WTC</text>
+        <circle class="halo" id="halo" cx="40" cy="110" r="18"/>
+        <circle class="dot" id="dot" cx="40" cy="110" r="8"/>
+        <text class="sig" id="sig" x="282" y="92" text-anchor="middle"></text>
+      </svg>
+      <div class="phone mono">
+        <div><div class="small" style="color:rgba(240,162,30,.6)">STAMP</div><div class="t" id="ptime">07:52</div></div>
+        <div class="s" id="pstat">Grove Street · boarding</div>
+      </div>
+      <input type="range" id="scroll" min="0" max="100" value="0" aria-label="Position along the trip">
+    </div>
+  </div>
+</section>
+
+<!-- SEA -->
+<section class="concept" id="sea">
+  <div class="concept__text">
+    <div class="chip"><span>Proposed 2026–2035 Capital Plan</span><span>Sea</span></div><svg class="cube" viewBox="0 0 54 54" aria-hidden="true"><path d="M27 4l12 7v14l-12 7-12-7V11z M15 11l12 7 12-7 M27 18v14"/><path d="M27 28l12 7v14l-12 7-12-7V35z M15 35l12 7 12-7 M27 42v12"/></svg>
+    <div class="concept__eyebrow"><span class="bullet">S</span><span class="small"><b>Sea</b> · Port Newark · 23:00</span></div>
+    <h2>Follow one box</h2>
+    <p>The port has no timetable and no fare, so the page follows a single container instead. The reader scans its number and the page traces the box from the ship's deck to a shelf in the region, scene by scene. Each stage is a clip; the trace is the scroll.</p>
+    <p class="how">Written piece: <b>"What's in the box"</b>, on what the region actually imports through Newark. The port moved 8.9 million TEUs in 2025 and handles about 14% of all US international cargo.</p>
+    <p class="plan-note"><b>In the plan ($2B plus $1.2B private):</b> deepen the harbor from 50 to 55 feet, rebuild 60-year-old wharves, finish the Port Street Corridor. The box trace gains a last stop: the channel depth, 50 ft today, 55 ft by the end of the plan.</p>
+  </div>
+  <div class="concept__demo">
+    <div class="demo-label"><span>Prototype</span><span>Trace the box</span></div>
+    <div class="trace">
+      <div class="trace__scan">
+        <input id="boxno" value="MSCU 482 991 0" aria-label="Container number">
+        <button id="go">Trace this box</button>
+        <span class="small" id="trace-note">Any number works in the prototype.</span>
+      </div>
+      <div class="trace__bar"><i id="bar"></i></div>
+      <ol class="steps" id="steps" style="list-style:none;margin:0;padding:0"></ol>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <h3>What ties it together</h3>
+  <p>Two spines across four pages: the hour of the day for how the network works now, and the year in the plan for what it becomes. One signature interaction and one reported piece per page, and a fifth page on how it was made. The landing page stays as it is: the four windows are the front door.</p>
+  <p>The agency's own framing is "finish what was started". Every mode page can close on the same beat: here is the facility in use, here is the year it changes, here is the number. That is the story the Port Authority already tells about itself, told from the platform instead of the boardroom.</p>
+  <p class="small">Figures from panynj.gov and the 2026 to 2035 Capital Plan board presentation (November 2025); see docs/sources.md. Note the agency files the World Trade Center and the bus terminals under Land, which gives that page room to grow. Interaction only; final art direction follows the landing page.</p>
+</footer>
+
+<script>
+(function () {
+  // ---------- Spine ----------
+  const shifts = [
+    { k: "Air", from: 4*60+30, to: 9*60, where: "Newark Liberty · the first flight out" },
+    { k: "Rail", from: 7*60, to: 10*60, where: "PATH · Grove Street to World Trade Center" },
+    { k: "Land", from: 11*60, to: 17*60, where: "Lincoln Tunnel · buses and freight" },
+    { k: "Sea", from: 21*60, to: 24*60+4*60, where: "Port Newark · the night shift" },
+  ];
+  const track = document.getElementById("shifts");
+  shifts.forEach((s, i) => {
+    const seg = (from, to) => { const el = document.createElement("span"); el.className = "spine__shift"; el.dataset.i = i; el.textContent = s.k; el.style.left = (from / 1440 * 100) + "%"; el.style.width = ((to - from) / 1440 * 100) + "%"; track.appendChild(el); };
+    if (s.to > 1440) { seg(s.from, 1440); seg(0, s.to - 1440); } else seg(s.from, s.to);
+  });
+  const hour = document.getElementById("hour"), clock = document.getElementById("clock"), where = document.getElementById("where");
+  function setHour() {
+    const m = +hour.value; clock.textContent = String(Math.floor(m / 60)).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0");
+    let on = null;
+    shifts.forEach((s, i) => { const inside = s.to > 1440 ? (m >= s.from || m < s.to - 1440) : (m >= s.from && m < s.to); if (inside && on === null) on = i; });
+    track.querySelectorAll(".spine__shift").forEach((el) => { el.classList.toggle("is-on", +el.dataset.i === on); el.classList.toggle("is-off", on !== null && +el.dataset.i !== on); });
+    where.textContent = on === null ? "between shifts" : shifts[on].where;
+  }
+  hour.addEventListener("input", setHour); setHour();
+
+  // ---------- Plan spine ----------
+  const milestones = [
+    [2026, "PATH: all four lines run seven days a week, the first time in 25 years; PATH Forward complete; Newark NEC station link opens"],
+    [2026, "JFK: first new gates open at Terminal One and Terminal 6"],
+    [2027, "PATH: more Newark to WTC rush-hour trains; the off-peak E-ZPass discount begins to phase out"],
+    [2030, "Newark: the $3.5B AirTrain opens; Midtown Bus Terminal phase 1 (ramps, storage, staging) complete"],
+    [2035, "Midtown Bus Terminal main hall and 3.5-acre park open; Newark Terminal B; three airports remade for $50B+; harbor at 55 ft"],
+  ];
+  const yr = document.getElementById("yr"), yearEl = document.getElementById("year"), yearNote = document.getElementById("yearnote"), opens = document.getElementById("opens");
+  milestones.forEach((m) => { const li = document.createElement("li"); li.dataset.y = m[0]; li.innerHTML = "<b>" + m[0] + "</b><span>" + m[1] + "</span>"; opens.appendChild(li); });
+  function setYear() {
+    const y = +yr.value; yearEl.textContent = y;
+    let latest = null;
+    opens.querySelectorAll("li").forEach((li) => { const on = +li.dataset.y <= y; li.classList.toggle("is-on", on); if (on) latest = li; });
+    yearNote.textContent = latest ? latest.querySelector("span").textContent.split(";")[0] : "";
+  }
+  yr.addEventListener("input", setYear); setYear();
+
+  // ---------- Network map ----------
+  const FAC = [
+    ["air", "Newark Liberty International", 228, 338, "New Terminal B, expanded Terminal A, a third taxiway; $3.5B AirTrain opens 2030."],
+    ["air", "AirTrain EWR", 250, 300, "Replaced under the plan, opening 2030, with a new link to the NEC rail station in 2026."],
+    ["air", "Teterboro Airport", 335, 85, "General aviation; state of good repair."],
+    ["air", "LaGuardia Airport", 640, 160, "New Terminal A replacing the 85-year-old building; LGA Link Q70 bus made fast, free, frequent."],
+    ["air", "JFK International", 690, 420, "$9.5B Terminal One and $4.2B Terminal 6 finish; first new gates 2026; AirTrain overhaul."],
+    ["land", "George Washington Bridge", 415, 108, "$2B Restore the George, over 60% complete, to last another century."],
+    ["land", "GWB Bus Station", 458, 112, "Bus terminal at the bridge's Manhattan end."],
+    ["land", "Lincoln Tunnel", 405, 198, "Helix rehabilitation; replacement planned for the 2036 plan. Home of the XBL bus lane."],
+    ["land", "Midtown Bus Terminal", 448, 212, "$11B replacement, the plan's centerpiece: phase 1 2030, main hall and 3.5-acre park 2035."],
+    ["land", "Holland Tunnel", 412, 290, "Sandy repairs done; resiliency reinforced."],
+    ["land", "Bayonne Bridge", 332, 428, "Raised to 215 ft in the last plan so larger ships reach the port."],
+    ["land", "Goethals Bridge", 282, 442, "Rebuilt 2018, first major bridge construction since 1931."],
+    ["land", "Outerbridge Crossing", 252, 500, "Full rehabilitation; replacement planned for 2036 onward."],
+    ["rail", "PATH", 428, 304, "All four lines seven days a week in 2026; new uptown tracks; new fare gates."],
+    ["rail", "Journal Square", 360, 280, "Transportation center; direct weekend service to 33rd St from 2026."],
+    ["rail", "Harrison station", 302, 262, "Rebuilt and expanded in the last plan."],
+    ["sea", "Port Newark", 258, 348, "Port Street Corridor rebuilt; wharves restored; harbor to 55 ft."],
+    ["sea", "Elizabeth Marine Terminal", 252, 388, "World's first container port, 1962; $1.2B private investment in operations."],
+    ["sea", "Port Jersey Marine Terminal", 378, 382, "Container terminal on the Bayonne side."],
+    ["sea", "Greenville Yard", 382, 350, "ExpressRail: cargo straight onto the national rail network."],
+    ["sea", "Howland Hook", 292, 472, "Fully owned since the last plan; room for cargo growth on Staten Island."],
+    ["wtc", "World Trade Center", 436, 322, "Build out Towers 2 and 5; One WTC 95% leased."],
+  ];
+  const COL = { air: "#f2a900", land: "#6e2c91", rail: "#0b7bc1", sea: "#d5262b", wtc: "#17a89b" };
+  const NAME = { air: "Air", land: "Land", rail: "Rail", sea: "Sea", wtc: "World Trade Center" };
+  const facG = document.getElementById("facilities");
+  const np = { sw: document.getElementById("np-swatch"), mode: document.getElementById("np-mode"), name: document.getElementById("np-name"), text: document.getElementById("np-text") };
+  FAC.forEach((f, i) => {
+    const g = document.createElementNS("http://www.w3.org/2000/svg", "g"); g.setAttribute("class", "f"); g.setAttribute("tabindex", "0"); g.dataset.i = i;
+    g.innerHTML = `<rect x="${f[2]-5}" y="${f[3]-5}" width="10" height="10" fill="${COL[f[0]]}"/><text x="${f[2]+9}" y="${f[3]+3}">${f[1]}</text>`;
+    const show = () => { facG.querySelectorAll(".f").forEach((x) => x.classList.remove("is-on")); g.classList.add("is-on"); np.sw.style.background = COL[f[0]]; np.mode.textContent = NAME[f[0]]; np.name.textContent = f[1]; np.text.textContent = f[4]; };
+    g.addEventListener("mouseenter", show); g.addEventListener("click", show); g.addEventListener("focus", show);
+    facG.appendChild(g);
+  });
+
+  // ---------- Air: split-flap ----------
+  const rows = [
+    ["05:40", "NEWARK PENN", "NJT", "ONE STOP"],
+    ["06:05", "AIRTRAIN LOOP", "P1", "BOARDING"],
+    ["06:20", "TERMINAL A HALL", "A", "ON TIME"],
+    ["06:50", "CHECKPOINT", "A2", "9 MIN"],
+    ["07:30", "GATE A14", "A14", "BOARDING"],
+    ["2030", "TERMINAL B", "NEW", "IN THE PLAN"],
+  ];
+  const board = document.getElementById("board");
+  const CH = " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:";
+  function flap(text, width) {
+    const wrap = document.createElement("span"); wrap.className = "flap";
+    text.padEnd(width).slice(0, width).split("").forEach((ch, i) => {
+      const cell = document.createElement("i"); cell.textContent = " "; wrap.appendChild(cell);
+      const target = CH.indexOf(ch.toUpperCase()); let k = 0;
+      const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (reduce || target < 0) { cell.textContent = ch; return; }
+      setTimeout(function step() { cell.textContent = CH[k]; if (k < target) { k++; setTimeout(step, 28); } }, 200 + i * 40 + Math.random() * 300);
+    });
+    return wrap;
+  }
+  const head = document.createElement("div"); head.className = "board__row board__head"; head.innerHTML = "<span>Time</span><span>Scene</span><span>Gate</span><span>Status</span>"; board.appendChild(head);
+  rows.forEach((r, i) => {
+    const el = document.createElement("div"); el.className = "board__row"; el.tabIndex = 0; el.setAttribute("role", "button");
+    el.appendChild(flap(r[0], 5)); el.appendChild(flap(r[1], 16)); el.appendChild(flap(r[2], 4));
+    const st = document.createElement("span"); st.className = "board__status" + (/BOARDING|ON TIME/.test(r[3]) ? " go" : ""); st.textContent = r[3]; el.appendChild(st);
+    const pick = () => { board.querySelectorAll(".board__row").forEach((x) => x.classList.remove("is-active")); el.classList.add("is-active"); document.getElementById("board-note").textContent = i === rows.length - 1 ? "Last row: the new Terminal B, the $3.5B AirTrain (2030) and the NEC station link (2026) from the 2026 to 2035 plan. The page ends here." : "Scene " + (i + 1) + " of " + (rows.length - 1) + ": the page would scroll to " + r[1].toLowerCase() + " at " + r[0] + "."; };
+    el.addEventListener("click", pick); el.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(); } });
+    board.appendChild(el);
+  });
+
+  // ---------- Land: crossings ----------
+  const xs = [
+    { n: "George Washington Bridge", y: "1931", l: "4,760 ft", v: "~270k", t: "Suspension · 14 lanes on two decks" },
+    { n: "Bayonne Bridge", y: "1931", l: "1,675 ft", v: "~20k", t: "Steel arch · roadway raised to 215 ft in 2017" },
+    { n: "Goethals Bridge", y: "2018", l: "1,800 ft", v: "~80k", t: "Cable-stayed · replaced the 1928 span" },
+    { n: "Outerbridge Crossing", y: "1928", l: "750 ft", v: "~80k", t: "Cantilever · the southernmost crossing" },
+    { n: "Lincoln Tunnel", y: "1937", l: "8,216 ft", v: "1,850 buses", t: "Three tubes · centre tube portal to portal · XBL carries 1,850 buses a morning" },
+    { n: "Holland Tunnel", y: "1927", l: "1.6 mi", v: "~90k", t: "Two tubes · the first mechanically ventilated road tunnel" },
+  ];
+  const fact = document.getElementById("fact");
+  function showX(i) {
+    document.querySelectorAll(".crossings .x").forEach((g) => g.classList.toggle("is-on", +g.dataset.i === i));
+    const x = xs[i];
+    fact.innerHTML = `<div class="fact__name">${x.n}</div><div><b>${x.y}</b><span>Opened</span></div><div><b>${x.l}</b><span>Main span / length</span></div><div><b>${x.v}</b><span>Vehicles a day</span></div><div><b style="font-size:14px;font-weight:600;letter-spacing:0;line-height:1.3">${x.t}</b><span>Type</span></div>`;
+  }
+  document.querySelectorAll(".crossings .x").forEach((g) => { const i = +g.dataset.i; g.addEventListener("mouseenter", () => showX(i)); g.addEventListener("click", () => showX(i)); g.addEventListener("focus", () => showX(i)); });
+  showX(0);
+
+  // ---------- Rail: dot that freezes ----------
+  const sc = document.getElementById("scroll"), dot = document.getElementById("dot"), halo = document.getElementById("halo"), sig = document.getElementById("sig"), ptime = document.getElementById("ptime"), pstat = document.getElementById("pstat");
+  function setRail() {
+    const p = +sc.value / 100;        // 0 Grove, .47 Exchange, .47-.95 river (no GPS), .95+ WTC
+    let x, t, s, bad = false;
+    if (p < 0.47) { x = 40 + (200 - 40) * (p / 0.47); t = 7 * 60 + 52 + Math.round(p / 0.47 * 3); s = p < 0.05 ? "Grove Street · boarding" : "Moving · Exchange Place next"; }
+    else if (p < 0.95) { x = 200; t = 7 * 60 + 55 + Math.round((p - 0.47) / 0.48 * 7); s = "No GPS · still says New Jersey"; bad = true; }
+    else { x = 380; t = 8 * 60 + 3; s = "World Trade Center · daylight"; }
+    dot.setAttribute("cx", x); halo.setAttribute("cx", x);
+    sig.textContent = bad ? "NO SIGNAL" : "";
+    ptime.textContent = String(Math.floor(t / 60)).padStart(2, "0") + ":" + String(t % 60).padStart(2, "0");
+    pstat.textContent = s; pstat.classList.toggle("bad", bad);
+  }
+  sc.addEventListener("input", setRail); setRail();
+
+  // ---------- Sea: follow one box ----------
+  const stages = [
+    ["23:10", "On deck", "MSC vessel alongside berth 50, Port Newark"],
+    ["23:14", "The lift", "Ship-to-shore crane, one move, about two minutes"],
+    ["23:31", "The stack", "Yard row 14, four high, waiting for a chassis"],
+    ["06:02", "The gate", "Cameras read the number, truck released"],
+    ["06:40", "Turnpike", "Exit 13A, northbound, forty minutes to the warehouse"],
+    ["Sat", "A shelf", "Somewhere within a few hundred miles, no one thinks about the crane"],
+    ["2035", "The channel, 55 ft", "Deepened from 50 ft under the plan so the next size of ship can call"],
+  ];
+  const steps = document.getElementById("steps"), bar = document.getElementById("bar"), note = document.getElementById("trace-note");
+  stages.forEach((s) => { const li = document.createElement("li"); li.className = "step"; li.innerHTML = `<span class="t">${s[0]}</span><span class="d"></span><span class="n">${s[1]}<small>${s[2]}</small></span>`; steps.appendChild(li); });
+  document.getElementById("go").addEventListener("click", () => {
+    const n = document.getElementById("boxno").value.trim().toUpperCase() || "MSCU 482 991 0";
+    note.textContent = "Tracing " + n + "…";
+    const items = steps.querySelectorAll(".step"); items.forEach((li) => li.classList.remove("is-on")); bar.style.width = "0";
+    items.forEach((li, i) => setTimeout(() => { li.classList.add("is-on"); bar.style.width = ((i + 1) / items.length * 100) + "%"; if (i === items.length - 1) note.textContent = n + " · ship to shelf in one page."; }, 300 + i * 550));
+  });
+})();
+</script>
+</body>
+</html>

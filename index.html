@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Art of Moving — Port of Entry</title>
+<meta name="description" content="Air, land, rail and sea: what the Port Authority's $45 billion 2026–2035 Capital Plan builds for each, as four infographic pages.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* Paper and ink from the Swiss posters; blue and yellow from the Port Authority. */
+    --paper: #f2f0eb;
+    --ink: #0e0e0e;
+    --grey: #8b8b88;
+    --grey-light: #c9c7c1;
+    --grid: rgba(14, 14, 14, 0.09);
+    --blue: #0038a8;
+    --yellow: #f2e52e;
+    --cyan: #1aa3dd;
+    /* The agency's own mode colours, from the capital plan deck. */
+    --c-air: #f2a900; --c-land: #6e2c91; --c-rail: #0b7bc1; --c-sea: #d5262b;
+
+    /* Width limit: the widest row (movi( )ng) is about 6.45em. Height limit: four rows plus chrome. */
+    --size: clamp(56px, min(calc((100vw - 2 * var(--gutter)) / 6.45), calc((100svh - 150px) / 4.6)), 320px);
+    --ratio: 1.85;
+    --win-h: 1.02em;
+    --gutter: clamp(16px, 3.5vw, 56px);
+    --ease: cubic-bezier(.2, .7, .2, 1);
+  }
+
+  * { box-sizing: border-box; }
+  html { background: var(--paper); }
+  body {
+    margin: 0;
+    min-height: 100svh;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Inter Tight", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Faint layout grid, as in the reference posters: six columns and a horizontal rhythm. */
+  .grid {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      repeating-linear-gradient(90deg, var(--grid) 0 1px, transparent 1px calc(100% / 6)),
+      repeating-linear-gradient(0deg,  var(--grid) 0 1px, transparent 1px 12.5svh);
+    background-position: var(--gutter) 0, 0 0;
+  }
+
+  .page {
+    position: relative; z-index: 1;
+    min-height: 100svh;
+    display: flex; flex-direction: column;
+    padding: 16px var(--gutter) 18px;
+  }
+
+  /* ---------- Small type ---------- */
+  .small { font-size: 12px; line-height: 1.3; letter-spacing: 0; color: var(--grey); }
+  .small b { color: var(--ink); font-weight: 700; }
+  .topline { display: flex; justify-content: space-between; gap: 24px; align-items: center; }
+  .topline .mark { display: inline-flex; align-items: center; gap: 8px; color: var(--ink); font-weight: 700; text-transform: uppercase; letter-spacing: .02em; }
+  .topline .mark i { width: 14px; height: 14px; background: var(--blue); display: inline-block; }
+  /* The deck's cyan chip: this is the capital-plan edition of the site. */
+  .chip { display: inline-flex; font-size: 11px; font-weight: 700; letter-spacing: .02em; }
+  .chip span { padding: 6px 10px; }
+  .chip span:first-child { background: var(--cyan); color: #fff; }
+  .chip span:last-child { background: var(--paper); color: var(--blue); border: 2px solid var(--yellow); border-left: 0; }
+
+  /* ---------- Title ---------- */
+  .title {
+    flex: 1 1 auto;
+    display: flex; flex-direction: column; justify-content: center;
+    gap: 0;
+    padding: 10px 0 8px;
+    font-size: var(--size);
+    font-weight: 800;
+    line-height: 0.98;
+    letter-spacing: -0.045em;
+  }
+  .title, .row { min-width: 0; }
+  .title h1 { display: contents; font-size: inherit; font-weight: inherit; margin: 0; }
+
+  .row { display: flex; align-items: center; gap: 0 0.45em; white-space: nowrap; }
+  .row + .row { margin-top: 0.16em; }
+  .row--start  { justify-content: flex-start; }
+  .row--center { justify-content: center; }
+  .row--center .word { margin-left: auto; }
+  .row--indent { padding-left: 16.667%; }
+  .row--wrap { flex-wrap: wrap; row-gap: 4px; }
+
+  .word { display: inline-flex; align-items: center; }
+
+  /* Parentheses: regular weight in Port Authority blue. */
+  .paren { color: var(--blue); font-weight: 400; letter-spacing: 0; line-height: 1; transform: translateY(-0.03em); user-select: none; }
+  .paren--open  { margin-right: 0.05em; }
+  .paren--close { margin-left: 0.05em; }
+
+  /* Caption beside each word: the mode's plan budget and headline project. */
+  .cap {
+    font-size: 12px; font-weight: 400; letter-spacing: 0; line-height: 1.2;
+    color: var(--grey); white-space: nowrap; align-self: flex-end; margin-left: auto; padding-bottom: 0.12em;
+  }
+  .cap b { font-weight: 800; color: var(--mode); margin-right: 6px; font-size: 14px; }
+
+  .hint { margin: 0.12em 0 0; font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--blue); display: flex; align-items: center; gap: 6px; }
+  .hint__arrow { font-size: 14px; }
+  /* Bauhaus full stop: a yellow square after the last word. */
+  .stop { display: inline-block; width: 0.16em; height: 0.16em; background: var(--yellow); margin-left: 0.08em; align-self: flex-end; margin-bottom: 0.06em; }
+
+  /* ---------- ClipWindow: bare clip, square corners, one yellow corner bracket ---------- */
+  .clip {
+    position: relative;
+    display: block;
+    height: var(--win-h);
+    width: calc(var(--win-h) * var(--ratio));
+    background: var(--grey-light);
+    overflow: visible;
+    vertical-align: middle;
+    cursor: pointer;
+    outline-offset: 6px;
+    transition: transform .25s var(--ease);
+  }
+  .clip video {
+    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block;
+    /* Warm grade, kept from before: like old Kodachrome, colour intact, blacks lifted a touch. */
+    filter: sepia(.18) saturate(1.22) contrast(1.03) brightness(1.03);
+  }
+  /* The Port Authority's L-bracket, bottom-left, a quarter of the window per arm. */
+  .clip::after {
+    content: ""; position: absolute; left: -0.045em; bottom: -0.045em;
+    width: 28%; height: 38%;
+    border-left: 3px solid var(--yellow); border-bottom: 3px solid var(--yellow);
+    pointer-events: none;
+  }
+  .clip:focus-visible { outline: 3px solid var(--blue); }
+  @media (hover: hover) and (pointer: fine) {
+    .clip:hover { transform: scale(1.02); }
+    .clip:hover::after { border-color: var(--blue); }
+  }
+  @media (prefers-reduced-motion: reduce) { .clip { transition: none; } .clip:hover { transform: none; } }
+
+  .row[data-mode="air"]  { --mode: var(--c-air); }
+  .row[data-mode="land"] { --mode: var(--c-land); }
+  .row[data-mode="rail"] { --mode: var(--c-rail); }
+  .row[data-mode="sea"]  { --mode: var(--c-sea); }
+
+  /* ---------- Bottom: legend, or the open mode's plan card ---------- */
+  .foot { position: relative; min-height: 0; padding-top: 8px; display: grid; grid-template-columns: 1fr 5fr; gap: 24px; align-items: end; }
+  .legend__note { padding-bottom: 6px; }
+  .legend__text {
+    position: relative; margin: 0; padding: 8px 0 8px 16px; max-width: 56ch;
+    font-size: clamp(15px, 1.5vw, 22px); font-weight: 700; line-height: 1.04; letter-spacing: -0.03em; color: var(--ink);
+  }
+  .legend__text::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 34%; border-left: 3px solid var(--yellow); border-bottom: 3px solid var(--yellow); }
+  .legend__text .mode { color: var(--blue); }
+  .legend__text .quiet { color: var(--grey); font-weight: 500; }
+  .legend__text > .quiet:first-child { color: var(--ink); font-weight: 800; }
+  .foot a { color: inherit; text-decoration: none; border-bottom: 1px solid var(--grey-light); }
+  .foot a:hover { color: var(--blue); border-color: var(--blue); }
+
+
+  /* ---------- Small screens ---------- */
+  @media (max-width: 720px) {
+    .row--indent { padding-left: 0; }
+    .row--center { justify-content: flex-start; padding-left: 12%; }
+    .row + .row { margin-top: 0.22em; }
+    .cap { display: none; }
+    .topline .chip { display: none; }
+    .foot { grid-template-columns: 1fr; gap: 12px; }
+    .legend__text { max-width: none; font-size: 16px; }
+  }
+</style>
+</head>
+<body>
+<script>
+  // Start every page at its top, even when it loads inside a frame whose parent is scrolled (claude.ai, mobile included).
+  (function () {
+    try { history.scrollRestoration = "manual"; } catch (e) {}
+    var toTop = function () {
+      window.scrollTo(0, 0);
+      var el = document.documentElement;
+      if (el && el.scrollIntoView) el.scrollIntoView({ block: "start", inline: "nearest", behavior: "instant" });
+    };
+    toTop();
+    document.addEventListener("DOMContentLoaded", toTop);
+    window.addEventListener("load", function () { toTop(); requestAnimationFrame(toTop); setTimeout(toTop, 250); });
+    window.addEventListener("pageshow", function (e) { if (e.persisted) toTop(); });
+  })();
+</script>
+<div class="grid" aria-hidden="true"></div>
+
+<div class="page">
+  <header class="topline small">
+    <span class="mark"><i></i> Port Authority NY NJ · Field notes</span>
+    <span class="chip"><span>2026–2035 Capital Plan</span><span>Four infographics</span></span>
+  </header>
+
+  <main class="title">
+    <h1>
+      <div class="row row--start" data-mode="air">
+        <span class="word">th<span class="paren paren--open">(</span><a class="clip" href="air/index.html" data-mode="air" aria-label="Air — Newark Liberty Terminal A. In the plan: $20.7 billion, Terminal B, AirTrain 2030"><video autoplay muted loop playsinline preload="auto" poster="assets/posters/air.jpg" src="assets/clips/air.mp4" aria-hidden="true" tabindex="-1"></video></a><span class="paren paren--close">)</span>e</span>
+        <span class="cap"><b>$20.7B</b>( Terminal B · AirTrain 2030 )</span>
+      </div>
+
+      <div class="row row--center" data-mode="land">
+        <span class="word">a<span class="paren paren--open">(</span><a class="clip" href="land/index.html" data-mode="land" aria-label="Land — Lincoln Tunnel and the bus terminal. In the plan: $15.4 billion, Midtown Bus Terminal 2035"><video autoplay muted loop playsinline preload="auto" poster="assets/posters/land.jpg" src="assets/clips/land.mp4" aria-hidden="true" tabindex="-1"></video></a><span class="paren paren--close">)</span>rt</span>
+        <span class="cap"><b>$15.4B</b>( Midtown Bus Terminal 2035 )</span>
+      </div>
+
+      <div class="row row--start row--indent" data-mode="rail">
+        <span class="word"><span class="paren paren--open">(</span><a class="clip" href="rail/index.html" data-mode="rail" aria-label="Rail — PATH. In the plan: $2.6 billion, every line every day from 2026"><video autoplay muted loop playsinline preload="auto" poster="assets/posters/rail.jpg" src="assets/clips/rail.mp4" aria-hidden="true" tabindex="-1"></video></a><span class="paren paren--close">)</span>of</span>
+        <span class="cap"><b>$2.6B</b>( Every line, every day · 2026 )</span>
+      </div>
+
+      <div class="row row--start row--wrap" data-mode="sea">
+        <span class="word">movi<span class="paren paren--open">(</span><a class="clip" href="sea/index.html" data-mode="sea" aria-label="Sea — Port Newark–Elizabeth. In the plan: $2 billion, harbor to 55 feet"><video autoplay muted loop playsinline preload="auto" poster="assets/posters/sea.jpg" src="assets/clips/sea.mp4" aria-hidden="true" tabindex="-1"></video></a><span class="paren paren--close">)</span>ng<span class="stop" aria-hidden="true"></span></span>
+        <span class="cap"><b>$2B</b>( Harbor to 55 ft )</span>
+      </div>
+    </h1>
+    <p class="hint" aria-hidden="true"><span class="hint__arrow">&#8598;</span> click a window to open it</p>
+  </main>
+
+  <footer class="foot" id="foot">
+    <div class="legend__note small">( <a href="timeline/index.html">Full milestone timeline</a> )</div>
+    <p class="legend__text">
+      <span class="quiet">Click any window</span> to open that mode and see what the $45 billion 2026–2035 Capital Plan builds there.
+      <span class="quiet">Four ways across the Hudson: <span class="mode">air</span>, <span class="mode">land</span>, <span class="mode">rail</span> and <span class="mode">sea</span>.</span>
+    </p>
+  </footer>
+</div>
+
+<script>
+  (function () {
+    // ---------- ClipWindow playback ----------
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const videos = Array.from(document.querySelectorAll(".clip video"));
+    function apply() {
+      videos.forEach((v) => {
+        if (reduce.matches) { v.removeAttribute("autoplay"); v.pause(); v.load(); }
+        else { v.setAttribute("autoplay", ""); v.playbackRate = 0.55; const p = v.play(); if (p && p.catch) p.catch(() => {}); }
+      });
+    }
+    apply();
+    reduce.addEventListener("change", apply);
+    videos.forEach((v) => v.addEventListener("canplay", () => { if (!reduce.matches && v.paused) v.play().catch(() => {}); }));
+    const nudge = () => { if (!reduce.matches) apply(); };
+    ["pointerdown", "keydown", "touchstart"].forEach((t) => document.addEventListener(t, nudge, { once: true, passive: true }));
+    document.addEventListener("visibilitychange", () => { if (!document.hidden) nudge(); });
+
+
+  })();
+</script>
+</body>
+</html>
